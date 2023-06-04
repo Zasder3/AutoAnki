@@ -58,6 +58,8 @@ def main():
 
             if text.lower().strip() == "exit":
                 break
+        else:
+            regenerate = False
             
         print(f"{Fore.YELLOW}Generating anki card... 🧞‍♂️{Style.RESET_ALL}")
 
@@ -81,6 +83,7 @@ def main():
         else:
             print(f"{Fore.YELLOW}Re-generating card...{Style.RESET_ALL}")
             print()
+            regenerate = True
 
     print()
     print(f"{Fore.GREEN}Here are your saved cards:{Style.RESET_ALL}")
