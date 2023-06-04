@@ -34,6 +34,8 @@ def save_cards(cards):
 
             if overwrite == "y":
                 break
+        else:
+            break
     
     # Write cards to file in csv format
     with open(out_file, "w") as f:
