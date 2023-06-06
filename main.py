@@ -7,6 +7,7 @@ import os
 from utils.anki import create_card, print_card
 from colorama import Fore, Style
 from colorama import init as colorama_init
+from bs4 import BeautifulSoup
 
 colorama_init()
 
@@ -21,6 +22,66 @@ def input_passage():
         contents.append(line)
     
     return "\n".join(contents)
+
+def add_card_to_html(question, answer, filename='cards.html'):
+    html_doc = """
+    <html>
+    <head>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        padding: 20px;
+    }
+    h1 {
+        width: 100%;
+        text-align: center;
+        color: #333;
+        margin: 20px 0;
+    }
+    .card {
+        background-color: #fff;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        transition: 0.3s;
+        width: 30%;
+        border-radius: 10px;
+        margin: 10px;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    .card:hover {
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    }
+    </style>
+    </head>
+    <body>
+    <h1>AutoAnki</h1>
+    </body>
+    </html>
+    """
+
+    if os.path.isfile(filename):
+        with open(filename, 'r', encoding='utf-8') as f:
+            soup = BeautifulSoup(f, 'html.parser')
+    else:
+        soup = BeautifulSoup(html_doc, 'html.parser')
+
+    new_card = soup.new_tag('div')
+    new_card.attrs.update({'class': 'card'})
+    question_tag = soup.new_tag('h3')
+    question_tag.string = question
+    answer_tag = soup.new_tag('p')
+    answer_tag.string = answer
+    new_card.append(question_tag)
+    new_card.append(answer_tag)
+
+    soup.body.append(new_card)
+
+    with open(filename, 'w', encoding='utf-8') as f_out:
+        f_out.write(str(soup.prettify()))
 
 def save_cards(cards):
     # Ask user for output file name and ask for confirmation if file already exists
@@ -41,6 +102,7 @@ def save_cards(cards):
     with open(out_file, "w") as f:
         for card in cards:
             f.write(f'"{card.question}","{card.answer}"\n')
+            add_card_to_html(card.question, card.answer)
 
 def main():
     # Initialize OpenAI API
